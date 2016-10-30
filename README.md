@@ -1,6 +1,5 @@
-<img src="graphics/sibyl.png" alt="Sibyl Gem" style="width: 600px;"/>
-
-# Sibyl Gem
+<img src="graphics/sibyl.png" alt="Sibyl Gem" style="width: 600px;"
+width="600" />
 
 An important moment in the [hero's
 journey](http://www.thewritersjourney.com/hero's_journey.htm) is the meeting
