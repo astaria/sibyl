@@ -1,4 +1,4 @@
-<img src="graphics/sibyl.png" alt="Sibyl Gem" style="width: 600px;"
+<img src="graphics/sibyl_logo.png" alt="Sibyl Gem" style="width: 600px;"
 width="600" />
 
 An important moment in the [hero's
