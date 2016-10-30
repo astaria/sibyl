@@ -9,10 +9,10 @@ Gem::Specification.new do |s|
   s.version     = Sibyl::VERSION
   s.authors     = ["Janet jeffus"]
   s.email       = ["jjeffus@gmail.com"]
-  s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of Sibyl."
-  s.description = "TODO: Description of Sibyl."
-  s.license     = "MIT"
+  s.homepage    = "https://github.com/astaria/sibyl"
+  s.summary     = "An MVC Rails engine for filling out PDFs."
+  s.description = "A super easy way to fill out a PDF form from a Rails application."
+  s.license     = "GPL"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
