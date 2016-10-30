@@ -37,22 +37,6 @@ needs work and create a pull request. It's that simple!
 
 All portions Copyright (C) 2016 Janet Jeffus
 
-    This identity change software and material is distributed with the
-    understanding that neither the author, developer or any entity involved
-    in the preparation is engaging in rendering legal advice. If legal
-    advice is needed or if you do not feel 100% comfortable in understanding
-    the enclosed instructions and documents, you should obtain the services
-    of a lawyer in your area. You must realize that by completing and using
-    the documents supplied by this software package you are acting as your
-    own lawyer. Assured Development, LLC. disclaims all responsibility for
-    the legal effects or consequences of any document completed or action
-    taken in reliance upon information contained in this identity change
-    software and documents. Purchasers and persons intending to use this
-    identity change software for the preparation and filing of any legal
-    documents are advised to check specifically on the current applicable
-    laws in any jurisdiction in which they intend the documents to be
-    effective.
-
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
