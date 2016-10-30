@@ -1,0 +1,4 @@
+module Sibyl
+  class ApplicationJob < ActiveJob::Base
+  end
+end
