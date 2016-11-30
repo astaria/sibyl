@@ -26,6 +26,13 @@ $ bundle
 
 ## Usage
 
+## Goals
+
+This project should be easy for anyone to work with. This is why it uses
+JQuery UI instead of Bootstrap and very basic Javascript and CSS. Anyone
+with any amount of experience should be able to hack on this without
+needing to learn Angular. We are targeting Chrome latest for the
+admin/editor.
 
 ## Contributing
 

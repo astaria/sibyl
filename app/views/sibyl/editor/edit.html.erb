@@ -1,1 +1,189 @@
-<h1><%= @root %></h1>
+<div class="tiles">
+    <div class="controls">
+			<div id="title">Sibyl Editor</div>
+			<div id="current_labels">
+				Task: <span id="task"></span><br />
+				Form: <span id="form"></span><br />
+				Page: <span id="page_number"></span>
+			</div>
+			<div id="page_buttons">
+				<input type="button" value="Previous" id="previous_page" class="ui-button ui-widget ui-corner-all" />
+				<input type="button" value="Next" id="next_page" class="ui-button ui-widget ui-corner-all" />
+			</div>
+			<div id="tabs">
+				<ul>
+	 				<li id="new_field"><a href="#tabs-1">New Element</a></li>
+	 				<li id="elements"><a href="#tabs-2">Elements</a></li>
+	 				<li id="jsonTab"><a href="#tabs-3">JSON</a></li>
+ 				</ul>
+ 				<div id="tabs-1">
+					<p>Element Name:</p>
+					<select id="select_element_name">
+						<option value="custom">Custom Element Name</option>
+					</select>
+					<div id="task"></div>
+					<input type="text" id="custom_element_name" />
+					<div id="select_xy">
+						<p>Select XY</p>
+						<div class="box">
+							X: <input type="text" id="dx" /><br />
+							Y: <input type="text" id="dy" />
+						</div>
+					</div>
+					<div id="set_xy">
+						<input type="button" value="Set >>>" id="set" class="ui-button ui-widget ui-corner-all" />
+					</div>
+					<div id="element_xy">
+						<p>Element XY</p>
+						<div class="box">
+							X: <span id="x"></span><br />
+							Y: <span id="y"></span>
+						</div>
+					</div>
+					<label for="font_size">Font Size</label>
+					<select name="font_size" id="font_size">
+						<%= 1.upto(48).each do |i| %>
+							<option value="<%= i %>" <%= i == 18 ? 'selected="selected"' : '' %>><%= i %></option>
+						<% end %>
+					</select>
+					<input type="button" id="save_element" class="ui-button ui-widget ui-corner-all" value="Save Element" />
+ 				</div>
+ 				<div id="tabs-2">
+					<table id="elements_list">
+					</table>
+ 				</div>
+ 				<div id="tabs-3">
+					<div id="jsonView">
+					</div>
+					<div id="json" style="display: none">
+						{
+							"one": "two"
+						}
+					</div>
+ 				</div>
+			</div>
+			<input type="button" id="save_project" class="ui-button ui-widget ui-corner-all" value="Save Project" />
+		</div>
+    <div class="tile">
+		</div>
+</div>
+
+<script>
+function pageNumber(page) {
+	page_num = page.replace(/page(\d\d\d).png/, "$1")
+	return parseInt(page_num)
+}
+$(document).ready(function(){
+	$("#tabs").tabs();
+	$("#select_element_name").selectmenu();
+	$('#set').click(function(){
+		$('#x').html($('#dx').val())
+		$('#y').html($('#dy').val())
+	});
+	$('#elements').click(function(){
+		json = $('#json').text()
+		table = ''
+		$.each(JSON.parse(json), function(key,val){
+			table = '<tr><td>'+key+'</td>'
+			table += '<td><input type="button" class="edit_element ui-button ui-widget ui-corner-all" data-elementid="'+key+'" value="Edit"/></td>'
+			table += '<td><input type="button" class="delete_element ui-button ui-widget ui-corner-all" data-elementid="'+key+'" value="Delete" /></td></tr>'
+			console.log(key,val)
+
+		});
+		$('#elements_list').html(table)
+	});
+	$('#save_element').click(function(){
+
+	});
+	$('#save_project').click(function(){
+
+	});
+	form_url = window.location.pathname.replace(/\/sibyl\/editor\/edit\//, "/")
+	json_url = "/sibyl/editor/index" + form_url + ".json"
+	page = window.location.hash.replace(/^#/, "")
+	img_url = form_url.toString() + '/' + page
+	parts = form_url.split(/\//)
+	console.log(parts)
+	window.task = parts[1]
+	window.form = parts[2]
+	window.page = page
+	$('#task').html(window.task)
+	$('#form').html(window.form)
+	$('#page_number').html(pageNumber(page))
+
+	console.log("json_url", json_url)
+	$.getJSON(json_url, function(data) {
+		console.log("image_url", img_url)
+		console.log("form_url", form_url)
+		console.log("data", data)
+		console.log('page', page)
+		$('.tile').html('<a href="#" class="page_image"><img src="'+img_url+'" style="width: '+data[page]['width']+'px; height: '+data[page]['height']+'px" /></a>');
+		$('.tile').click(function(obj){
+			$('#dx').val(obj.pageX)
+			$('#dy').val(obj.pageY)
+			console.log(obj)
+		});
+	});
+	$('#jsonTab').click(function(){
+		$('#jsonView').text($('#json').text())
+	});
+});
+</script>
+
+<style>
+body {
+    background: #fff;
+    color: #000;
+    margin: 0;
+  }
+  .tiles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1600px;
+    height: 100%;
+  }
+	a.page_image {
+	  cursor: crosshair;
+	}
+	.controls {
+		background-color: white;
+		padding: 20px;
+		margin: 20px;
+		border-radius: 20px;
+		position: fixed;
+		left: 0;
+		top: 0;
+		width: 400px;
+	}
+  .photo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    transition: transform .5s ease-out;
+  }
+	#current_labels {
+		margin-bottom: 10px;
+		margin-top: 50px;
+	}
+	#page_buttons {
+		margin-bottom: 10px;
+		position: absolute;
+		top: 10px;
+		left: 210px;
+	}
+	#save_project {
+		margin-top: 10px;
+	}
+	#title {
+		position: absolute;
+		top: 10px;
+		left: 10px;
+		font-size: 15pt;
+	}
+</style>
