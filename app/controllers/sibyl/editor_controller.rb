@@ -2,6 +2,7 @@ require_dependency "sibyl/application_controller"
 
 module Sibyl
   class EditorController < ApplicationController
+		protect_from_forgery :except => :save_form
     def index
     end
 
@@ -29,10 +30,12 @@ module Sibyl
 		def index_form
 			filesystem_bag = {}
 			dir = Rails.root.join("app", "sibyl", params[:task], params[:form])
-			json_file = dir.to_s.gsub(/.$/, ".json")
-			if File.exists? json_file
+			json_file = dir.to_s.gsub(/$/, ".json")
+			logger.info "Reading: #{json_file}"
+			begin
 				filesystem_bag = JSON.parse(File.read(json_file))
-			else
+			rescue Exception => e
+				logger.info("Exception: #{e}: #{e.backtrace}")
 				Dir[dir.join("*")].each do |form|
 					name = form.split(/\//).last
 					unless filesystem_bag.has_key? name
@@ -46,9 +49,19 @@ module Sibyl
 			p filesystem_bag
 			render json: filesystem_bag
 		end
+		def save_form
+			filesystem_bag = {}
+			dir = Rails.root.join("app", "sibyl", params[:task], params[:form])
+			json_file = dir.to_s.gsub(/$/, ".json")
+			STDERR.puts "Writing: #{json_file}"
+			File.open(json_file, "w") do |f|
+				f.write params[:json].to_json
+			end
+			head :ok
+		end
 
     def edit
-			
+
     end
   end
 end

@@ -2,10 +2,11 @@
     <div class="controls">
 			<div id="title">Sibyl Editor</div>
 			<div id="current_labels">
-				Task: <span id="task"></span><br />
-				Form: <span id="form"></span><br />
-				Page: <span id="page_number"></span>
+				Task: <span id="task"></span><br /><br />
+				Form: <span id="form"></span>
 			</div>
+			<input type="button" id="save_form" class="ui-button ui-widget ui-corner-all" value="Save Form" />
+			<select id="page_number"></select>
 			<div id="page_buttons">
 				<input type="button" value="Previous" id="previous_page" class="ui-button ui-widget ui-corner-all" />
 				<input type="button" value="Next" id="next_page" class="ui-button ui-widget ui-corner-all" />
@@ -17,52 +18,69 @@
 	 				<li id="jsonTab"><a href="#tabs-3">JSON</a></li>
  				</ul>
  				<div id="tabs-1">
-					<p>Element Name:</p>
-					<select id="select_element_name">
+					<p>Element Name</p>
+					<select id="select_element_name" class="element_text">
 						<option value="custom">Custom Element Name</option>
 					</select>
 					<div id="task"></div>
-					<input type="text" id="custom_element_name" />
-					<div id="select_xy">
-						<p>Select XY</p>
-						<div class="box">
-							X: <input type="text" id="dx" /><br />
-							Y: <input type="text" id="dy" />
-						</div>
-					</div>
-					<div id="set_xy">
-						<input type="button" value="Set >>>" id="set" class="ui-button ui-widget ui-corner-all" />
-					</div>
-					<div id="element_xy">
-						<p>Element XY</p>
-						<div class="box">
-							X: <span id="x"></span><br />
-							Y: <span id="y"></span>
-						</div>
-					</div>
+					<input type="text" id="custom_element_name" class="element_text" />
+					<table id="position_controls">
+						<tbody>
+							<tr>
+								<td class="position_controls">
+									<div id="select_xy">
+										Select XY
+										<div class="box">
+											X: <input type="text" id="dx" class="xy_select" /><br />
+											Y: <input type="text" id="dy" class="xy_select" /><br />
+											<input type="button" id="locate" value="locate" class="ui-button ui-widget ui-corner-all" />
+										</div>
+									</div>
+								</td>
+								<td>
+									<div id="set_xy">
+										<input type="button" value="Set >>>" id="set" class="ui-button ui-widget ui-corner-all" />
+									</div>
+								</td>
+								<td class="position_controls">
+									<div id="element_xy">
+										Element XY
+										<div class="box">
+											X: <span id="x"></span><br />
+											Y: <span id="y"></span>
+										</div>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
 					<label for="font_size">Font Size</label>
 					<select name="font_size" id="font_size">
 						<%= 1.upto(48).each do |i| %>
 							<option value="<%= i %>" <%= i == 18 ? 'selected="selected"' : '' %>><%= i %></option>
 						<% end %>
 					</select>
+					<br /><br />
+					<label for="default_element_content">Default Element Content</label>
+					<input type="text" class="element_text" id="default_element_content" name="default_element_content" />
 					<input type="button" id="save_element" class="ui-button ui-widget ui-corner-all" value="Save Element" />
  				</div>
  				<div id="tabs-2">
-					<table id="elements_list">
-					</table>
+					<div class="scrollContainer">
+						<table id="elements_list">
+						</table>
+					</div>
  				</div>
  				<div id="tabs-3">
-					<div id="jsonView">
+					<div class="scrollContainer">
+						<div id="jsonView" class="code apache hljs">
+						</div>
 					</div>
 					<div id="json" style="display: none">
-						{
-							"one": "two"
-						}
+						{}
 					</div>
  				</div>
 			</div>
-			<input type="button" id="save_project" class="ui-button ui-widget ui-corner-all" value="Save Project" />
 		</div>
     <div class="tile">
 		</div>
@@ -70,10 +88,43 @@
 
 <script>
 function pageNumber(page) {
-	page_num = page.replace(/page(\d\d\d).png/, "$1")
+	var page_num = page.replace(/page(\d\d\d).png/, "$1")
+	page_num = parseInt(page_num) + 1;
 	return parseInt(page_num)
 }
+function numberToPage(num) {
+	num -= 1;
+	var len = 3 - (num+"").length
+	return "page"+"0".repeat(len)+num+".png"
+}
+function updateScreen(){
+	$('#json').html(JSON.stringify(window.data, null, 2))
+	json = $('#json').text()
+	table = ''
+	select = ''
+	var data = JSON.parse(json)
+	$.each(data, function(key,val){
+		selected = ''
+		if (key == window.page) {
+			selected = 'selected="selected"'
+			console.log("blah", data[key])
+			if (data[key] && data[key]['elements']) {
+				$.each(data[key]['elements'], function(k,v) {
+					table += '<tr><td>'+k+'</td>'
+					table += '<td><input type="button" class="edit_element ui-button ui-widget ui-corner-all" data-elementid="'+k+'" value="Edit"/></td>'
+					table += '<td><input type="button" class="delete_element ui-button ui-widget ui-corner-all" data-elementid="'+k+'" value="Delete" /></td></tr>'
+				});
+			}
+		}
+		select += '<option value="'+key+'" '+selected+'>Page '+pageNumber(key)+"</option>"
+		console.log(key,val)
+	});
+	console.log(select)
+	$('#page_number').html(select)
+	$('#elements_list').html(table)
+}
 $(document).ready(function(){
+	updateScreen()
 	$("#tabs").tabs();
 	$("#select_element_name").selectmenu();
 	$('#set').click(function(){
@@ -81,22 +132,61 @@ $(document).ready(function(){
 		$('#y').html($('#dy').val())
 	});
 	$('#elements').click(function(){
-		json = $('#json').text()
-		table = ''
-		$.each(JSON.parse(json), function(key,val){
-			table = '<tr><td>'+key+'</td>'
-			table += '<td><input type="button" class="edit_element ui-button ui-widget ui-corner-all" data-elementid="'+key+'" value="Edit"/></td>'
-			table += '<td><input type="button" class="delete_element ui-button ui-widget ui-corner-all" data-elementid="'+key+'" value="Delete" /></td></tr>'
-			console.log(key,val)
-
-		});
-		$('#elements_list').html(table)
+		updateScreen()
+	});
+	$('#locate').click(function(){
+		$('.controls').attr('style', 'display: none')
 	});
 	$('#save_element').click(function(){
-
+		var em = {
+			x: $('#x').html(),
+			y: $('#y').html(),
+			fontsize: $('#font_size').val(),
+			default: $('#default_element_content').val()
+		};
+		if (window.data && window.data[window.page]) {
+			if (! window.data[window.page]['elements']) {
+				window.data[window.page]['elements'] = {}
+			}
+			window.data[window.page]['elements'][$('#custom_element_name').val()] = em;
+		}
+		updateScreen();
 	});
-	$('#save_project').click(function(){
-
+	$('#page_number').change(function(){
+		window.location.href = window.location.pathname + '#' + $('#page_number').val()
+		window.location.reload()
+	});
+	$('#save_form').click(function(){
+		console.log("saving")
+		json = {
+			json: window.data
+		}
+		$.ajax({
+    	type: 'PUT',
+    	url: 	window.location.pathname.replace(/\/sibyl\/editor\/edit\//, "/sibyl/editor/save/")+".json", // A valid URL
+    	headers: {"X-HTTP-Method-Override": "PUT"},
+    	data: json
+		});
+	});
+	$('#next_page').click(function(){
+		var num = pageNumber(window.page);
+		num += 1;
+		newPage = numberToPage(num)
+		if (window.data[newPage]) {
+			console.log(newPage)
+			window.location.href = window.location.pathname + '#' + newPage
+			window.location.reload()
+		}
+	});
+	$('#previous_page').click(function(){
+		var num = pageNumber(window.page);
+		num -= 1;
+		newPage = numberToPage(num)
+		console.log(newPage)
+		if (window.data[newPage]) {
+			window.location.href = window.location.pathname + '#' + newPage
+			window.location.reload()
+		}
 	});
 	form_url = window.location.pathname.replace(/\/sibyl\/editor\/edit\//, "/")
 	json_url = "/sibyl/editor/index" + form_url + ".json"
@@ -117,15 +207,27 @@ $(document).ready(function(){
 		console.log("form_url", form_url)
 		console.log("data", data)
 		console.log('page', page)
-		$('.tile').html('<a href="#" class="page_image"><img src="'+img_url+'" style="width: '+data[page]['width']+'px; height: '+data[page]['height']+'px" /></a>');
+		window.data = data
+		$('.tile').html('<a href="#'+page+'" class="page_image"><img src="'+img_url+'" style="width: '+data[page]['width']+'px; height: '+data[page]['height']+'px" /></a>');
 		$('.tile').click(function(obj){
 			$('#dx').val(obj.pageX)
 			$('#dy').val(obj.pageY)
+			$('.controls').attr('style', 'display: block')
 			console.log(obj)
 		});
+		updateScreen();
 	});
 	$('#jsonTab').click(function(){
-		$('#jsonView').text($('#json').text())
+		console.log($('#json').html())
+		json = $('#json').html()
+		hljs.configure({useBR: true});
+		console.log('json', json)
+  	html = hljs.highlight('json', json, true);
+		console.log("html", html)
+		html = hljs.fixMarkup(html.value)
+		console.log("html", html)
+		html = html.replace(/(^|<br>)undefined/gm, '<br>')
+		$('#jsonView').html(html)
 	});
 });
 </script>
@@ -147,7 +249,8 @@ body {
 	  cursor: crosshair;
 	}
 	.controls {
-		background-color: white;
+		background-color: rgba(0,0,0,0.9);
+		color: white;
 		padding: 20px;
 		margin: 20px;
 		border-radius: 20px;
@@ -167,9 +270,29 @@ body {
     background-size: cover;
     transition: transform .5s ease-out;
   }
+	.xy_select {
+		width: 60px;
+	}
+	#position_controls {
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
+	.position_controls {
+		vertical-align: top;
+	}
+	#page_number {
+		position: absolute;
+		width: 190px;
+		top: 50px;
+		left: 210px;
+		font-size: 15pt;
+	}
+	.element_text {
+		width: 278px;
+	}
 	#current_labels {
 		margin-bottom: 10px;
-		margin-top: 50px;
+		margin-top: 40px;
 	}
 	#page_buttons {
 		margin-bottom: 10px;
@@ -177,13 +300,42 @@ body {
 		top: 10px;
 		left: 210px;
 	}
-	#save_project {
-		margin-top: 10px;
+	#save_element {
+		margin-top: 20px;
+		font-size: 15pt;
+		width: 190px;
+	}
+	#save_form {
+		position: absolute;
+		top: 81px;
+		left: 210px;
+		font-size: 15pt;
+		width: 190px;
 	}
 	#title {
 		position: absolute;
 		top: 10px;
 		left: 10px;
 		font-size: 15pt;
+	}
+	#set {
+		margin: 20px;
+		margin-top: 20px;
+	}
+	#tabs {
+		margin-bottom: 10px;
+		position: absolute;
+		width: 410px;
+		top: 130px;
+		left: 10px;
+	}
+	.scrollContainer {
+		height: 500px;
+		width: 410px;
+	}
+	#jsonView {
+		height: 500px;
+		width: 350px;
+		overflow:auto;
 	}
 </style>
