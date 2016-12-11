@@ -17,7 +17,7 @@ EOT
 				self.density = '300'
 				self.background_color = "none"
 			}
-			im.each_with_index do |img, i|
+      im.reverse.each_with_index do |img, i|
 				filename = sprintf "page%03d.png", i
 				out = folder.join(filename)
 				STDERR.puts "writing: #{out}"

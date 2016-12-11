@@ -1,0 +1,7 @@
+<h1><%= @task %></h1>
+
+<ol>
+	<%- @filesystem_bag['forms'].each do |form| %>
+		<li><%= link_to form, "/sibyl/editor/edit/#{@task}/#{form}" %></li>
+	<%- end %>
+</ol>

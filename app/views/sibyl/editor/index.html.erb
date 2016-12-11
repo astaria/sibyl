@@ -1,2 +1,8 @@
-<h1>Editor#index</h1>
-<p>Find me in app/views/sibyl/editor/index.html.erb</p>
+<h1>Tasks</h1>
+<ol>
+<%- @tasks.each do |task| %>
+<li>
+	<%= link_to task, "/sibyl/editor/index/#{task}" %>
+</li>
+<% end %>
+</ol>

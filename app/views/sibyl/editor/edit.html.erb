@@ -1,3 +1,9 @@
+<script>
+	window.data = <%= raw @pages.to_json %>
+	if (window.location.hash == "") {
+		window.location.hash = Object.keys(window.data)[0]
+	}
+</script>
 <div class="tiles">
     <div class="controls">
 			<div id="title">Sibyl Editor</div>
@@ -13,8 +19,8 @@
 			</div>
 			<div id="tabs">
 				<ul>
-	 				<li id="new_field"><a href="#tabs-1">New Element</a></li>
-	 				<li id="elements"><a href="#tabs-2">Elements</a></li>
+	 				<li id="new_field"><a href="#tabs-1">Element</a></li>
+	 				<li id="elements"><a href="#tabs-2">List</a></li>
 	 				<li id="jsonTab"><a href="#tabs-3">JSON</a></li>
  				</ul>
  				<div id="tabs-1">
@@ -24,36 +30,14 @@
 					</select>
 					<div id="task"></div>
 					<input type="text" id="custom_element_name" class="element_text" />
-					<table id="position_controls">
-						<tbody>
-							<tr>
-								<td class="position_controls">
-									<div id="select_xy">
-										Select XY
-										<div class="box">
-											X: <input type="text" id="dx" class="xy_select" /><br />
-											Y: <input type="text" id="dy" class="xy_select" /><br />
-											<input type="button" id="locate" value="locate" class="ui-button ui-widget ui-corner-all" />
-										</div>
-									</div>
-								</td>
-								<td>
-									<div id="set_xy">
-										<input type="button" value="Set >>>" id="set" class="ui-button ui-widget ui-corner-all" />
-									</div>
-								</td>
-								<td class="position_controls">
-									<div id="element_xy">
-										Element XY
-										<div class="box">
-											X: <span id="x"></span><br />
-											Y: <span id="y"></span>
-										</div>
-									</div>
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<div id="position_controls">
+						Select XY
+						<div class="box">
+							X: <input type="text" id="dx" class="xy_select" /><br />
+							Y: <input type="text" id="dy" class="xy_select" /><br />
+							<input type="button" id="locate" value="locate" class="ui-button ui-widget ui-corner-all" />
+						</div>
+					</div>
 					<label for="font_size">Font Size</label>
 					<select name="font_size" id="font_size">
 						<%= 1.upto(48).each do |i| %>
@@ -102,35 +86,67 @@ function updateScreen(){
 	json = $('#json').text()
 	table = ''
 	select = ''
+	elements = ''
 	var data = JSON.parse(json)
 	$.each(data, function(key,val){
 		selected = ''
 		if (key == window.page) {
 			selected = 'selected="selected"'
-			console.log("blah", data[key])
 			if (data[key] && data[key]['elements']) {
 				$.each(data[key]['elements'], function(k,v) {
 					table += '<tr><td>'+k+'</td>'
 					table += '<td><input type="button" class="edit_element ui-button ui-widget ui-corner-all" data-elementid="'+k+'" value="Edit"/></td>'
 					table += '<td><input type="button" class="delete_element ui-button ui-widget ui-corner-all" data-elementid="'+k+'" value="Delete" /></td></tr>'
+					elements += '<div style="font-size: '+v['fontsize']+'pt; position: absolute; top: '+v['y']+'px; left: '+v['x']+'px;">'+v['default']+'</div>'
 				});
 			}
 		}
 		select += '<option value="'+key+'" '+selected+'>Page '+pageNumber(key)+"</option>"
-		console.log(key,val)
 	});
-	console.log(select)
+
+	console.log('window.defaults', window['defaults'])
+	if ('defaults' in window && 'defaults' in window.defaults) {
+		$('#select_element_name').html('')
+		$('#select_element_name').append($('<option/>', {
+				value: '',
+				text : 'Custom Element Name'
+		}));
+		$.each(window['defaults']['defaults'], function(key,val) {
+			if ('default' in val) {
+				$('#select_element_name').append($('<option/>', {
+		        value: val['default'],
+		        text : key
+		    }));
+			}
+		});
+	}
+	$('.tile').html(window.img_src+"\n"+elements)
 	$('#page_number').html(select)
 	$('#elements_list').html(table)
+	$('#select_element_name').change(function(){
+		alert("called")
+		$('#custom_element_name').val($( "#select_element_name option:selected" ).text())
+		$('#default_element_content').val($('#select_element_name').val())
+	});
+	$('.delete_element').click(function(e){
+		delete window.data[window.page]['elements'][e.target.attributes['data-elementid'].value]
+		console.log("delete", e.target.attributes['data-elementid'].value)
+		updateScreen()
+	});
+	$('.edit_element').click(function(e){
+		console.log(e.target)
+		$('#custom_element_name').val(e.target.attributes['data-elementid'].value)
+		$('#dx').val(window.data[window.page]['elements'][e.target.attributes['data-elementid'].value]['x'])
+		$('#dy').val(window.data[window.page]['elements'][e.target.attributes['data-elementid'].value]['y'])
+		$('#font_size').val(window.data[window.page]['elements'][e.target.attributes['data-elementid'].value]['fontsize'])
+		$('#default_element_content').val(window.data[window.page]['elements'][e.target.attributes['data-elementid'].value]['default'])
+		$("#tabs").tabs({ active: 0})
+	});
 }
 $(document).ready(function(){
 	updateScreen()
 	$("#tabs").tabs();
 	$("#select_element_name").selectmenu();
-	$('#set').click(function(){
-		$('#x').html($('#dx').val())
-		$('#y').html($('#dy').val())
-	});
 	$('#elements').click(function(){
 		updateScreen()
 	});
@@ -139,8 +155,8 @@ $(document).ready(function(){
 	});
 	$('#save_element').click(function(){
 		var em = {
-			x: $('#x').html(),
-			y: $('#y').html(),
+			x: $('#dx').val(),
+			y: $('#dy').val(),
 			fontsize: $('#font_size').val(),
 			default: $('#default_element_content').val()
 		};
@@ -197,6 +213,7 @@ $(document).ready(function(){
 	window.task = parts[1]
 	window.form = parts[2]
 	window.page = page
+	task_url = "/sibyl/editor/list/" + window.task + ".json"
 	$('#task').html(window.task)
 	$('#form').html(window.form)
 	$('#page_number').html(pageNumber(page))
@@ -208,13 +225,18 @@ $(document).ready(function(){
 		console.log("data", data)
 		console.log('page', page)
 		window.data = data
-		$('.tile').html('<a href="#'+page+'" class="page_image"><img src="'+img_url+'" style="width: '+data[page]['width']+'px; height: '+data[page]['height']+'px" /></a>');
+		window.img_src = '<a href="#'+page+'" class="page_image"><img src="'+img_url+'" style="width: '+data[page]['width']+'px; height: '+data[page]['height']+'px" /></a>';
 		$('.tile').click(function(obj){
 			$('#dx').val(obj.pageX)
-			$('#dy').val(obj.pageY)
+			$('#dy').val(obj.pageY - 10)
 			$('.controls').attr('style', 'display: block')
 			console.log(obj)
 		});
+		console.log("task_url", task_url)
+		$.getJSON(task_url, function(data){
+			window.defaults = data
+			updateScreen();
+		})
 		updateScreen();
 	});
 	$('#jsonTab').click(function(){
@@ -237,6 +259,7 @@ body {
     background: #fff;
     color: #000;
     margin: 0;
+		padding: 0;
   }
   .tiles {
     position: absolute;
@@ -246,7 +269,7 @@ body {
     height: 100%;
   }
 	a.page_image {
-	  cursor: crosshair;
+	  cursor: text;
 	}
 	.controls {
 		background-color: rgba(0,0,0,0.9);
@@ -258,6 +281,7 @@ body {
 		left: 0;
 		top: 0;
 		width: 400px;
+		z-index: 2;
 	}
   .photo {
     position: absolute;
@@ -272,13 +296,6 @@ body {
   }
 	.xy_select {
 		width: 60px;
-	}
-	#position_controls {
-		margin-top: 20px;
-		margin-bottom: 20px;
-	}
-	.position_controls {
-		vertical-align: top;
 	}
 	#page_number {
 		position: absolute;
@@ -328,6 +345,10 @@ body {
 		width: 410px;
 		top: 130px;
 		left: 10px;
+	}
+	#position_controls {
+		margin-top: 20px;
+		margin-bottom: 20px;
 	}
 	.scrollContainer {
 		height: 500px;
