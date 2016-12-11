@@ -1,16 +1,11 @@
 <img src="graphics/sibyl_logo.png" alt="Sibyl Gem" style="width: 600px;"
 width="600" />
 
-An important moment in the [hero's
-journey](http://www.thewritersjourney.com/hero's_journey.htm) is the meeting
-with the mentor. This person usually gives the hero something important,
-whether it's an item or just some good advice. This gem is a DIY kit to
-fill this need in someone's life. In our modern world what holds greater
-terror than filling out an arcane and mysterious form? At the end of
-these labrinths lies the treasure of some life changing momentous
-ocassion. What so many need in this world is someone who will help them
+In our modern world what holds greater magic than a form?
+Within these paper labrinths lies the treasure of some life changing momentous
+ocassions. What so many need in this world is someone who will help them
 along their journey. Do you have what it takes to answer their call and
-become a digital sibyl? Read on to find out!
+become a digital sibyl? Yes, it may be dark magic. But it's POWERFUL!
 
 ## Installation
 Add this line to your application's Gemfile:
@@ -21,11 +16,23 @@ gem 'sibyl'
 
 And then execute:
 ```bash
-$ bundle
+$ bundle install
+$ bin/rake sibyl:install
 ```
 
 ## Usage
 
+Start the rails server with
+```bash
+$ bin/rails server
+```
+
+Then in a different terminal Sibyl uses an existing model so create one use an existing one.
+```bash
+$ bin/rails g scaffold Taskname attrib1:string attrib2:string
+$ bin/rails g siblform taskname formname path/to/pdffile.pdf
+$ bin/rake sibyl:open
+```
 ## Goals
 
 This project should be easy for anyone to work with. This is why it uses
