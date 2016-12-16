@@ -22,6 +22,25 @@ module Sibyl
 			tasks
 		end
 
+		def self.list_defaults(task)
+			defaults = {}
+			Dir[Rails.root.join("app", "sibyl", task, "*.json").to_s].each do |json_file|
+				json = JSON.parse(File.read(json_file))
+				json.each_key do |page|
+					if json[page].has_key? 'elements'
+						json[page]['elements'].each_key do |name|
+							if json[page]['elements'][name].has_key? 'default'
+								defaults[name] = json[page]['elements'][name]['default']
+							else
+								defaults[name] = "Default #{name}"
+							end
+						end
+					end
+				end
+			end
+			return defaults
+		end
+
 		def self.forms(task)
 			dir = Rails.root.join("app", "sibyl", task)
 			filesystem_bag = {}
@@ -32,7 +51,7 @@ module Sibyl
 				filesystem_bag['forms'].push name
 			end
 			begin
-				filesystem_bag['defaults'] = JSON.parse(File.read(dir.join("defaults.json")))
+				filesystem_bag['defaults'] = self.list_defaults(task)
 			rescue Exception => e
 				STDERR.puts "Exception: #{e}: #{e.backtrace}"
 			end

@@ -112,22 +112,21 @@ function updateScreen(){
 				text : 'Custom Element Name'
 		}));
 		$.each(window['defaults']['defaults'], function(key,val) {
-			if ('default' in val) {
-				$('#select_element_name').append($('<option/>', {
-		        value: val['default'],
-		        text : key
-		    }));
-			}
+			console.log("adding select elment", val, key)
+			$('#select_element_name').append($('<option/>', {
+	        value: val,
+	        text : key
+	    }));
 		});
+	 $('#select_element_name').on("change", function(){
+		 $('#custom_element_name').val($( "#select_element_name option:selected" ).text())
+		 $('#default_element_content').val($('#select_element_name').val())
+	 });
 	}
 	$('.tile').html(window.img_src+"\n"+elements)
 	$('#page_number').html(select)
 	$('#elements_list').html(table)
-	$('#select_element_name').change(function(){
-		alert("called")
-		$('#custom_element_name').val($( "#select_element_name option:selected" ).text())
-		$('#default_element_content').val($('#select_element_name').val())
-	});
+
 	$('.delete_element').click(function(e){
 		delete window.data[window.page]['elements'][e.target.attributes['data-elementid'].value]
 		console.log("delete", e.target.attributes['data-elementid'].value)
@@ -146,7 +145,6 @@ function updateScreen(){
 $(document).ready(function(){
 	updateScreen()
 	$("#tabs").tabs();
-	$("#select_element_name").selectmenu();
 	$('#elements').click(function(){
 		updateScreen()
 	});
