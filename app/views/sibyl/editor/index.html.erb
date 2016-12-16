@@ -6,3 +6,19 @@
 </li>
 <% end %>
 </ol>
+
+<%= form_tag "/sibyl/editor/create", :method => :post, :multipart => true do %>
+	<%= label_tag :for => 'task' do %>
+		Task Name
+	<% end %>
+	<%= text_field_tag 'task', nil, placeholder: "Task" %><br />
+	<%= label_tag :for => 'form' do %>
+		Form Name
+	<% end %>
+	<%= text_field_tag 'form', nil, placeholder: "Form" %><br />
+	<%= label_tag :for => 'pdf' do %>
+		PDF File
+	<% end %>
+	<%= file_field_tag 'pdf', :accept => ".pdf"  %><br />
+	<%= submit_tag "Create" %>
+<% end %>

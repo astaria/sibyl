@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.add_dependency "rubyzip"
   s.add_dependency "launchy"
   s.add_dependency "prawn"
+  s.add_dependency "thor-rails"
 
   s.add_development_dependency "sqlite3"
 end

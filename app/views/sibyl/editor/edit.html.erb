@@ -167,6 +167,7 @@ $(document).ready(function(){
 			window.data[window.page]['elements'][$('#custom_element_name').val()] = em;
 		}
 		updateScreen();
+		$("#tabs").tabs({ active: 1})
 	});
 	$('#page_number').change(function(){
 		window.location.href = window.location.pathname + '#' + $('#page_number').val()

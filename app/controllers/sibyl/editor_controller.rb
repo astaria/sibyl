@@ -35,6 +35,24 @@ module Sibyl
 			head :ok
 		end
 
+		def create
+			logger.info "Got request: #{params[:task]} -> #{params[:form]}"
+			task = params[:task]
+			form = params[:form]
+			@errors = []
+			@errors.push ["Task name '#{task}' is not a valid ruby class name."] unless task =~ /^[A-Z]\w+/
+			@errors.push ["Form name '#{form}' is not a valid ruby class name."] unless form =~ /^[A-Z]\w+/
+			task = task.underscore.downcase
+			form = form.underscore.downcase
+
+			unless @errors.length == 0 and (@errors = Sibyl::Form.create_form(task, form, params[:pdf])).length == 0
+				redirect_to "/sibyl/editor/edit/#{task}/#{form}"
+			else
+				logger.info "Errors: #{@errors}"
+				rendeer 'create_error'
+			end
+		end
+
     def edit
 			@pages = Sibyl::Base.pages(params[:task], params[:form])
     end
