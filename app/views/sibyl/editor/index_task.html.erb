@@ -1,7 +1,25 @@
-<h1><%= @task %></h1>
+<h1>Forms for: <%= @task %></h1>
 
 <ol>
 	<%- @filesystem_bag['forms'].each do |form| %>
 		<li><%= link_to form, "/sibyl/editor/edit/#{@task}/#{form}" %></li>
 	<%- end %>
 </ol>
+<br />
+
+<div class="sibyl_form">
+	<h2>New Form</h2>
+	<%= form_tag "/sibyl/editor/create", :method => :post, :multipart => true do %>
+		<%= hidden_field_tag 'task', nil, :value => @task %>
+		<%= label_tag :for => 'form' do %>
+			Form Name
+		<% end %>
+		<%= text_field_tag 'form', nil, placeholder: "Form" %><br /><br />
+		<%= label_tag :for => 'pdf' do %>
+			PDF File
+		<% end %>
+		<%= file_field_tag 'pdf', :accept => ".pdf"  %><br />
+		<br />
+		<%= submit_tag "Create", :class => 'ui-button ui-widget ui-corner-all' %>
+	<% end %>
+</div>

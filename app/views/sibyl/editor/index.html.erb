@@ -1,24 +1,28 @@
-<h1>Tasks</h1>
+<h1>Sibyl Tasks</h1>
 <ol>
 <%- @tasks.each do |task| %>
-<li>
-	<%= link_to task, "/sibyl/editor/index/#{task}" %>
-</li>
+	<li><%= link_to task, "/sibyl/editor/index/#{task}" %></li>
 <% end %>
 </ol>
 
-<%= form_tag "/sibyl/editor/create", :method => :post, :multipart => true do %>
-	<%= label_tag :for => 'task' do %>
-		Task Name
+<br />
+
+<div class="sibyl_form">
+	<h2>New Task</h2>
+	<%= form_tag "/sibyl/editor/create", :method => :post, :multipart => true do %>
+		<%= label_tag :for => 'task' do %>
+			Task Name
+		<% end %>
+		<%= text_field_tag 'task', nil, placeholder: "Task" %><br />
+		<%= label_tag :for => 'form' do %>
+			Form Name
+		<% end %>
+		<%= text_field_tag 'form', nil, placeholder: "Form" %><br /><br />
+		<%= label_tag :for => 'pdf' do %>
+			PDF File
+		<% end %>
+		<%= file_field_tag 'pdf', :accept => ".pdf"  %><br />
+		<br />
+		<%= submit_tag "Create", :class => 'ui-button ui-widget ui-corner-all' %>
 	<% end %>
-	<%= text_field_tag 'task', nil, placeholder: "Task" %><br />
-	<%= label_tag :for => 'form' do %>
-		Form Name
-	<% end %>
-	<%= text_field_tag 'form', nil, placeholder: "Form" %><br />
-	<%= label_tag :for => 'pdf' do %>
-		PDF File
-	<% end %>
-	<%= file_field_tag 'pdf', :accept => ".pdf"  %><br />
-	<%= submit_tag "Create" %>
-<% end %>
+</div>

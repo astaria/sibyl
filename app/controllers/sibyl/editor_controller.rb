@@ -1,4 +1,5 @@
 require_dependency "sibyl/application_controller"
+require 'launchy'
 
 module Sibyl
   class EditorController < ApplicationController
@@ -54,7 +55,36 @@ module Sibyl
 		end
 
     def edit
-			@pages = Sibyl::Base.pages(params[:task], params[:form])
+			@task = params[:task]
+			@form = params[:form]
+			@pages = Sibyl::Base.pages(@task, @form)
     end
+
+		def new_scaffold
+			@task = params[:task]
+			@forms = Sibyl::Base.forms(@task)
+		end
+
+		def create_scaffold
+			@task = params[:task]
+			@columns = params[:columns]
+			columns = @columns.map {|k,v| "#{k}:#{v}"}
+			force = ''
+			if params[:force] == 'on'
+				force == '--force'
+			end
+			args = [Rails.root.join("bin", "rails").to_s, "generate", "scaffold", @task.titleize.to_s, *columns, "--migration", "--timestamps",  force]
+			logger.info("args: #{args.join(' ')}")
+			system(*args)
+			args = [Rails.root.join("bin", "rake").to_s, "db:migrate"]
+			system(*args)
+			redirect_to "/#{@task}"
+		end
+
+		def open_image
+			logger.info("params: " +params.inspect)
+			logger.info("image: #{Rails.root.join("app", "sibyl", params[:task], params[:form], params[:page]).to_s}")
+			Launchy.open(Rails.root.join("app", "sibyl", params[:task], params[:form], params[:page]).to_s)
+		end
   end
 end

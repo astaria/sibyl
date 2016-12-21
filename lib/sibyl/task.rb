@@ -53,13 +53,13 @@ module Sibyl
 						STDERR.puts "elments[#{col}]: #{elements[col]}"
 						if elements[col].has_key? 'fontsize'
 							STDERR.puts "setting fontsize: #{elements[col]['fontsize']}"
-		      		text.pointsize = elements[col]['fontsize'].to_f
+		      		text.pointsize = elements[col]['fontsize'].to_f + 2
 						end
 						if elements[col].has_key?('x') and elements[col].has_key?('y')
 							STDERR.puts "received element: #{elements[col]['x']},#{elements[col]['y']}"
 							if self.respond_to? col
 								STDERR.puts "Setting: #{col} at #{elements[col]['x']},#{elements[col]['y']}"
-								text.annotate(img, 0,0,elements[col]['x'].to_i,elements[col]['y'].to_i, self.send(col)) {
+								text.annotate(img, 0,0,elements[col]['x'].to_i,elements[col]['y'].to_i + 15, self.send(col)) {
 				        	self.fill = 'black'
 				      	}
 							end

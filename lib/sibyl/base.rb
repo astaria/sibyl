@@ -22,6 +22,23 @@ module Sibyl
 			tasks
 		end
 
+		def self.list_columns(task)
+			columns = {}
+			Dir[Rails.root.join("app", "sibyl", task, "*.json").to_s].each do |json_file|
+				json = JSON.parse(File.read(json_file))
+				json.each_key do |page|
+					if json[page].has_key? 'elements'
+						json[page]['elements'].each_key do |name|
+							if json[page]['elements'][name].has_key? 'column' and json[page]['elements'][name]['column'].to_s == "true"
+								columns[name] = true
+							end
+						end
+					end
+				end
+			end
+			return columns
+		end
+
 		def self.list_defaults(task)
 			defaults = {}
 			Dir[Rails.root.join("app", "sibyl", task, "*.json").to_s].each do |json_file|
@@ -52,6 +69,7 @@ module Sibyl
 			end
 			begin
 				filesystem_bag['defaults'] = self.list_defaults(task)
+				filesystem_bag['columns'] = self.list_columns(task)
 			rescue Exception => e
 				STDERR.puts "Exception: #{e}: #{e.backtrace}"
 			end

@@ -1,0 +1,35 @@
+<h1>Generate scaffold for: <%= @task %></h1>
+
+<%= form_tag "/sibyl/editor/scaffold/#{@task}", :method => :post do %>
+	<table style="width: 400px">
+		<thead>
+			<tr>
+				<th>Model Attribute</th>
+				<th>Data Type</th>
+			</tr>
+		</thead>
+		<tbody>
+		<% if @forms.has_key? 'columns' %>
+			<% @forms['columns'].each_key do |col| %>
+				<tr>
+					<td><%= col %></td>
+					<td>
+						<select name="columns[<%= col %>]">
+							<% [:string, :text, :integer, :float, :decimal, :datetime, :timestamp, :time, :date, :binary, :boolean].each do |type| %>
+								<option><%= type %></option>
+							<% end %>
+						</select>
+					</td>
+				</tr>
+			<% end %>
+		<% end %>
+		</tbody>
+	</table>
+		<br />
+	<label for="force">
+		Force
+	</label>
+	<input type="checkbox" checked="checked" name="force" /><br />
+	<br />
+	<%= submit_tag 'Create', :class =>"ui-button ui-widget ui-corner-all" %>
+<% end %>

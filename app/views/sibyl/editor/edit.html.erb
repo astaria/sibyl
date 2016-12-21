@@ -1,53 +1,65 @@
+<style>
+	body {
+		background-image: none;
+		margin: 0;
+		padding: 0;
+  }
+</style>
+
 <script>
 	window.data = <%= raw @pages.to_json %>
-	if (window.location.hash == "") {
-		window.location.hash = Object.keys(window.data)[0]
-	}
+	$(document).ready(sibylEditor);
 </script>
+
 <div class="tiles">
     <div class="controls">
+			<button id="close" type="button" class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close" title="Close"><span class="ui-button-icon ui-icon ui-icon-closethick"></span><span class="ui-button-icon-space"> </span>Close</button>
 			<div id="title">Sibyl Editor</div>
 			<div id="current_labels">
 				Task: <span id="task"></span><br /><br />
 				Form: <span id="form"></span>
 			</div>
-			<input type="button" id="save_form" class="ui-button ui-widget ui-corner-all" value="Save Form" />
+			<input type="button" id="save_form" class="ui-button ui-widget ui-corner-all" value="Save Form" title="Save data for form" />
+			<input type="button" id="open_image" class="ui-button ui-widget ui-corner-all" value="Open Image" title="Open image in default editor" />
+			<a href="/sibyl/editor/scaffold/<%= @task %>" class="ui-button ui-widget ui-corner-all" id="scaffold" title="Create scaffold for task">Create Scaffold</a>
 			<select id="page_number"></select>
 			<div id="page_buttons">
-				<input type="button" value="Previous" id="previous_page" class="ui-button ui-widget ui-corner-all" />
-				<input type="button" value="Next" id="next_page" class="ui-button ui-widget ui-corner-all" />
+				<input type="button" value="Previous" id="previous_page" class="ui-button ui-widget ui-corner-all" title="Go to previous page" />
+				<input type="button" value="Next" id="next_page" class="ui-button ui-widget ui-corner-all" title="Go to next page" />
 			</div>
 			<div id="tabs">
 				<ul>
-	 				<li id="new_field"><a href="#tabs-1">Element</a></li>
-	 				<li id="elements"><a href="#tabs-2">List</a></li>
-	 				<li id="jsonTab"><a href="#tabs-3">JSON</a></li>
+	 				<li id="new_field"><a href="#tabs-1" title="Current element">Element</a></li>
+	 				<li id="elements"><a href="#tabs-2" title="List of elements">List</a></li>
+	 				<li id="jsonTab"><a href="#tabs-3" title="JSON View">JSON</a></li>
  				</ul>
  				<div id="tabs-1">
 					<p>Element Name</p>
-					<select id="select_element_name" class="element_text">
+					<select id="select_element_name" class="element_text" title="Select an existing element name from the task">
 						<option value="custom">Custom Element Name</option>
 					</select>
 					<div id="task"></div>
-					<input type="text" id="custom_element_name" class="element_text" />
+					<input type="text" id="custom_element_name" class="element_text" placeholder="Element Name" />
 					<div id="position_controls">
 						Select XY
 						<div class="box">
-							X: <input type="text" id="dx" class="xy_select" /><br />
-							Y: <input type="text" id="dy" class="xy_select" /><br />
-							<input type="button" id="locate" value="locate" class="ui-button ui-widget ui-corner-all" />
+							X: <input type="text" id="dx" class="xy_select" placeholder="X" /><br />
+							Y: <input type="text" id="dy" class="xy_select" placeholder="Y" /><br />
+							<input type="button" id="locate" value="Locate Element" class="ui-button ui-widget ui-corner-all" title="Find element location on the page" />
 						</div>
 					</div>
+					<label for="column">Column?</label>
+					<input type="checkbox" checked="checked" name="column" id="column" title="Should this element be a database column?" />
 					<label for="font_size">Font Size</label>
-					<select name="font_size" id="font_size">
+					<select name="font_size" id="font_size" title="Font size on the page">
 						<%= 1.upto(48).each do |i| %>
 							<option value="<%= i %>" <%= i == 18 ? 'selected="selected"' : '' %>><%= i %></option>
 						<% end %>
 					</select>
 					<br /><br />
 					<label for="default_element_content">Default Element Content</label>
-					<input type="text" class="element_text" id="default_element_content" name="default_element_content" />
-					<input type="button" id="save_element" class="ui-button ui-widget ui-corner-all" value="Save Element" />
+					<input type="text" class="element_text" id="default_element_content" name="default_element_content" title="What is the default content?" />
+					<input type="button" id="save_element" class="ui-button ui-widget ui-corner-all" value="Save Element" title="Save element and go to list" />
  				</div>
  				<div id="tabs-2">
 					<div class="scrollContainer">
@@ -69,293 +81,3 @@
     <div class="tile">
 		</div>
 </div>
-
-<script>
-function pageNumber(page) {
-	var page_num = page.replace(/page(\d\d\d).png/, "$1")
-	page_num = parseInt(page_num) + 1;
-	return parseInt(page_num)
-}
-function numberToPage(num) {
-	num -= 1;
-	var len = 3 - (num+"").length
-	return "page"+"0".repeat(len)+num+".png"
-}
-function updateScreen(){
-	$('#json').html(JSON.stringify(window.data, null, 2))
-	json = $('#json').text()
-	table = ''
-	select = ''
-	elements = ''
-	var data = JSON.parse(json)
-	$.each(data, function(key,val){
-		selected = ''
-		if (key == window.page) {
-			selected = 'selected="selected"'
-			if (data[key] && data[key]['elements']) {
-				$.each(data[key]['elements'], function(k,v) {
-					table += '<tr><td>'+k+'</td>'
-					table += '<td><input type="button" class="edit_element ui-button ui-widget ui-corner-all" data-elementid="'+k+'" value="Edit"/></td>'
-					table += '<td><input type="button" class="delete_element ui-button ui-widget ui-corner-all" data-elementid="'+k+'" value="Delete" /></td></tr>'
-					elements += '<div style="font-size: '+v['fontsize']+'pt; position: absolute; top: '+v['y']+'px; left: '+v['x']+'px;">'+v['default']+'</div>'
-				});
-			}
-		}
-		select += '<option value="'+key+'" '+selected+'>Page '+pageNumber(key)+"</option>"
-	});
-
-	console.log('window.defaults', window['defaults'])
-	if ('defaults' in window && 'defaults' in window.defaults) {
-		$('#select_element_name').html('')
-		$('#select_element_name').append($('<option/>', {
-				value: '',
-				text : 'Custom Element Name'
-		}));
-		$.each(window['defaults']['defaults'], function(key,val) {
-			console.log("adding select elment", val, key)
-			$('#select_element_name').append($('<option/>', {
-	        value: val,
-	        text : key
-	    }));
-		});
-	 $('#select_element_name').on("change", function(){
-		 $('#custom_element_name').val($( "#select_element_name option:selected" ).text())
-		 $('#default_element_content').val($('#select_element_name').val())
-	 });
-	}
-	$('.tile').html(window.img_src+"\n"+elements)
-	$('#page_number').html(select)
-	$('#elements_list').html(table)
-
-	$('.delete_element').click(function(e){
-		delete window.data[window.page]['elements'][e.target.attributes['data-elementid'].value]
-		console.log("delete", e.target.attributes['data-elementid'].value)
-		updateScreen()
-	});
-	$('.edit_element').click(function(e){
-		console.log(e.target)
-		$('#custom_element_name').val(e.target.attributes['data-elementid'].value)
-		$('#dx').val(window.data[window.page]['elements'][e.target.attributes['data-elementid'].value]['x'])
-		$('#dy').val(window.data[window.page]['elements'][e.target.attributes['data-elementid'].value]['y'])
-		$('#font_size').val(window.data[window.page]['elements'][e.target.attributes['data-elementid'].value]['fontsize'])
-		$('#default_element_content').val(window.data[window.page]['elements'][e.target.attributes['data-elementid'].value]['default'])
-		$("#tabs").tabs({ active: 0})
-	});
-}
-$(document).ready(function(){
-	updateScreen()
-	$("#tabs").tabs();
-	$('#elements').click(function(){
-		updateScreen()
-	});
-	$('#locate').click(function(){
-		$('.controls').attr('style', 'display: none')
-	});
-	$('#save_element').click(function(){
-		var em = {
-			x: $('#dx').val(),
-			y: $('#dy').val(),
-			fontsize: $('#font_size').val(),
-			default: $('#default_element_content').val()
-		};
-		if (window.data && window.data[window.page]) {
-			if (! window.data[window.page]['elements']) {
-				window.data[window.page]['elements'] = {}
-			}
-			window.data[window.page]['elements'][$('#custom_element_name').val()] = em;
-		}
-		updateScreen();
-		$("#tabs").tabs({ active: 1})
-	});
-	$('#page_number').change(function(){
-		window.location.href = window.location.pathname + '#' + $('#page_number').val()
-		window.location.reload()
-	});
-	$('#save_form').click(function(){
-		console.log("saving")
-		json = {
-			json: window.data
-		}
-		$.ajax({
-    	type: 'PUT',
-    	url: 	window.location.pathname.replace(/\/sibyl\/editor\/edit\//, "/sibyl/editor/save/")+".json", // A valid URL
-    	headers: {"X-HTTP-Method-Override": "PUT"},
-    	data: json
-		});
-	});
-	$('#next_page').click(function(){
-		var num = pageNumber(window.page);
-		num += 1;
-		newPage = numberToPage(num)
-		if (window.data[newPage]) {
-			console.log(newPage)
-			window.location.href = window.location.pathname + '#' + newPage
-			window.location.reload()
-		}
-	});
-	$('#previous_page').click(function(){
-		var num = pageNumber(window.page);
-		num -= 1;
-		newPage = numberToPage(num)
-		console.log(newPage)
-		if (window.data[newPage]) {
-			window.location.href = window.location.pathname + '#' + newPage
-			window.location.reload()
-		}
-	});
-	form_url = window.location.pathname.replace(/\/sibyl\/editor\/edit\//, "/")
-	json_url = "/sibyl/editor/index" + form_url + ".json"
-	page = window.location.hash.replace(/^#/, "")
-	img_url = form_url.toString() + '/' + page
-	parts = form_url.split(/\//)
-	console.log(parts)
-	window.task = parts[1]
-	window.form = parts[2]
-	window.page = page
-	task_url = "/sibyl/editor/list/" + window.task + ".json"
-	$('#task').html(window.task)
-	$('#form').html(window.form)
-	$('#page_number').html(pageNumber(page))
-
-	console.log("json_url", json_url)
-	$.getJSON(json_url, function(data) {
-		console.log("image_url", img_url)
-		console.log("form_url", form_url)
-		console.log("data", data)
-		console.log('page', page)
-		window.data = data
-		window.img_src = '<a href="#'+page+'" class="page_image"><img src="'+img_url+'" style="width: '+data[page]['width']+'px; height: '+data[page]['height']+'px" /></a>';
-		$('.tile').click(function(obj){
-			$('#dx').val(obj.pageX)
-			$('#dy').val(obj.pageY - 10)
-			$('.controls').attr('style', 'display: block')
-			console.log(obj)
-		});
-		console.log("task_url", task_url)
-		$.getJSON(task_url, function(data){
-			window.defaults = data
-			updateScreen();
-		})
-		updateScreen();
-	});
-	$('#jsonTab').click(function(){
-		console.log($('#json').html())
-		json = $('#json').html()
-		hljs.configure({useBR: true});
-		console.log('json', json)
-  	html = hljs.highlight('json', json, true);
-		console.log("html", html)
-		html = hljs.fixMarkup(html.value)
-		console.log("html", html)
-		html = html.replace(/(^|<br>)undefined/gm, '<br>')
-		$('#jsonView').html(html)
-	});
-});
-</script>
-
-<style>
-body {
-    background: #fff;
-    color: #000;
-    margin: 0;
-		padding: 0;
-  }
-  .tiles {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 1600px;
-    height: 100%;
-  }
-	a.page_image {
-	  cursor: text;
-	}
-	.controls {
-		background-color: rgba(0,0,0,0.9);
-		color: white;
-		padding: 20px;
-		margin: 20px;
-		border-radius: 20px;
-		position: fixed;
-		left: 0;
-		top: 0;
-		width: 400px;
-		z-index: 2;
-	}
-  .photo {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-    transition: transform .5s ease-out;
-  }
-	.xy_select {
-		width: 60px;
-	}
-	#page_number {
-		position: absolute;
-		width: 190px;
-		top: 50px;
-		left: 210px;
-		font-size: 15pt;
-	}
-	.element_text {
-		width: 278px;
-	}
-	#current_labels {
-		margin-bottom: 10px;
-		margin-top: 40px;
-	}
-	#page_buttons {
-		margin-bottom: 10px;
-		position: absolute;
-		top: 10px;
-		left: 210px;
-	}
-	#save_element {
-		margin-top: 20px;
-		font-size: 15pt;
-		width: 190px;
-	}
-	#save_form {
-		position: absolute;
-		top: 81px;
-		left: 210px;
-		font-size: 15pt;
-		width: 190px;
-	}
-	#title {
-		position: absolute;
-		top: 10px;
-		left: 10px;
-		font-size: 15pt;
-	}
-	#set {
-		margin: 20px;
-		margin-top: 20px;
-	}
-	#tabs {
-		margin-bottom: 10px;
-		position: absolute;
-		width: 410px;
-		top: 130px;
-		left: 10px;
-	}
-	#position_controls {
-		margin-top: 20px;
-		margin-bottom: 20px;
-	}
-	.scrollContainer {
-		height: 500px;
-		width: 410px;
-	}
-	#jsonView {
-		height: 500px;
-		width: 350px;
-		overflow:auto;
-	}
-</style>
